@@ -45,11 +45,16 @@ const OtpVerification = () => {
   try {
     const res = await AxiosInstance.post("/auth/verify-otp", formData);
     console.log("Uploaded:", res.data);
+ if (res.data.success === true) {
+    
+      localStorage.setItem("access_token", res.data.access_token);
+      localStorage.setItem("refresh_token", res.data.refresh_token);
+      localStorage.setItem("token_type", res.data.token_type);
+      localStorage.setItem("isLoggedIn", "true");
 
-    if (res.data.success === true) {
       alert("OTP verified successfully!");
-        router.push("/detailesAdd");
       
+       router.push("/detailesAdd");
     } else {
       alert(res.data.message || "Verification failed!");
     }

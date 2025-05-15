@@ -1,6 +1,5 @@
 'use client'
-import React, { useState } from "react";
-
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Poppins } from 'next/font/google';
 import { Inter } from 'next/font/google';
@@ -18,12 +17,13 @@ const inter = Inter({
 });
 
 const AddDetailes = () => {
+  const [ mobile, setMobile] =useState('')
 
 const [formData, setFormData] = useState({
   name: "",
   mobile: "",
   email: "",
-    qualification: ""
+  qualification: ""
   });
 
 const [imageFile, setImageFile] = useState<File | null>(null);
@@ -48,7 +48,7 @@ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 
     const data = new FormData();
     data.append("name", formData.name);
-    data.append("mobile",formData.mobile)
+    data.append("mobile", mobile)
     data.append("email", formData.email);
     data.append("qualification", formData.qualification);
     data.append("profile_image", imageFile); 
@@ -70,6 +70,13 @@ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       alert("Failed to submit form.");
     }
   };
+
+  useEffect(()=>{
+    const storedMobileData = localStorage.getItem("mobile")
+    if(storedMobileData){
+      setMobile(storedMobileData)
+    }
+  },[])
 
 
   return (
@@ -170,14 +177,6 @@ const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         required
       />
 
-         <input
-        name="mobile"
-        type="text"
-        placeholder="Mobile Number"
-        className="w-full border border-gray-300 p-2 rounded-lg mt-4"
-        onChange={handleChange}
-        required
-      />
 
       <input
         name="email"
