@@ -1,8 +1,9 @@
-'use client'
-import Navbar from "../Navbar/Navbar"
+'use client';
+import Instructionapi from "@/utiles/instructionapi";
+import Navbar from "../Navbar/Navbar";
 import { Inter } from 'next/font/google';
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -24,38 +25,11 @@ type Question = {
   options: Option[];
 };
 
-const questionlist: Question[] = [
-  {
-    comprehension: "Web design is the process of creating the visual and functional aspects of websites. It involves a mix of creativity and technical skills.",
-    number: 1,
-    question: "What is web design used for?",
-    image: "/image/banner.png",
-    options: [
-      { id: 18, option: "To create mobile apps", is_correct: false, image: null },
-      { id: 19, option: "To develop software", is_correct: false, image: null },
-      { id: 20, option: "To design and build websites", is_correct: true, image: null },
-      { id: 21, option: "To manage servers", is_correct: false, image: null },
-    ]
-  },
-  {
-    comprehension: "Web design is the process of creating the visual and functional aspects of websites. It involves a mix of creativity and technical skills.",
-    number: 2,
-    question: "What is web design used for?",
-    image: "",
-    options: [
-      { id: 18, option: "To create mobile apps", is_correct: false, image: null },
-      { id: 19, option: "To develop software", is_correct: false, image: null },
-      { id: 20, option: "To design and build websites", is_correct: true, image: null },
-      { id: 21, option: "To manage servers", is_correct: false, image: null },
-    ]
-  },
-];
-
 const Question = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showComprehension, setShowComprehension] = useState(false);
-
-  // Store selected option id per question index
+  const [questionlist, setQuestion] = useState<Question[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedOptions, setSelectedOptions] = useState<Record<number, number>>({});
 
   const currentQuestion = questionlist[currentIndex];
@@ -81,52 +55,62 @@ const Question = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        try {
+          const data = await Instructionapi();
+          setQuestion(data.questions);
+        } catch (error) {
+          console.error("Error fetching questions:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchQuestions();
+  }, []);
+
   const handleSubmit = () => {
-    // You can handle submission logic here, e.g., send answers to backend
     console.log("Submitted answers:", selectedOptions);
     alert("Submitted! Check console for selected answers.");
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-200 flex justify-center items-center">
+        <p className="text-gray-700 text-lg">Loading questions...</p>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) return null;
+
+
+  
 
   return (
     <div className="min-h-screen bg-slate-200">
       <Navbar />
       <div className="flex flex-col lg:flex-row justify-center items-center md:items-center lg:items-start p-6 gap-4"> 
+
         {/* Left Side */}
         <div className="w-[60%] rounded-[8px] bg-white p-6 flex flex-col gap-6 relative">
-          {/* popup */}
-          {showComprehension && (
-            <div 
-              className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-              onClick={() => setShowComprehension(false)}
+
+          {currentQuestion.comprehension && (
+            <button
+              onClick={() => setShowComprehension(true)}
+              className={`${inter.className} w-[60%] h-[40px] bg-sky-600 rounded-xl text-white flex items-center justify-center p-4 font-medium text-xs leading-[100%] tracking-[0%]`}
             >
-              <div
-                className="bg-white p-6 rounded-lg max-w-lg"
-                onClick={e => e.stopPropagation()} 
-              >
-                <h3 className={`${inter.className} font-semibold text-lg mb-4`}>Comprehension</h3>
-                <p className="text-sm">{currentQuestion.comprehension}</p>
-                <button
-                  onClick={() => setShowComprehension(false)}
-                  className="mt-4 px-4 py-2 bg-sky-600 text-white rounded"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
+              <span className="md:hidden">Read</span>
+              <span className="hidden md:inline-flex items-center gap-x-1">
+                <Image src="/image/comprehensive.png" alt="comprehensive icon" width={20} height={20} />
+                Read Comprehensive Paragraph <span className="text-xm">&#8594;</span>
+              </span>
+            </button>
           )}
 
-          <button
-            onClick={() => setShowComprehension(true)}
-            className={`${inter.className} w-[60%] h-[40px] bg-sky-600 rounded-xl text-white flex items-center justify-center p-4 font-medium text-xs leading-[100%] tracking-[0%]`}
-          >
-            <span className="md:hidden">Read</span>
-            <span className="hidden md:inline-flex items-center gap-x-1">
-              <Image src="/image/comprehensive.png" alt="comprehensive icon" width={20} height={20} />
-              Read Comprehensive Paragraph <span className="text-xm">&#8594;</span>
-            </span>
-          </button>
-
-    
           <h2 className={`${inter.className} font-medium text-lg`}>
             {currentQuestion.number}. {currentQuestion.question}
           </h2>
@@ -141,7 +125,6 @@ const Question = () => {
             />
           )}
 
-      
           <div className="flex flex-col gap-3">
             {currentQuestion.options.map((opt) => (
               <label
@@ -161,7 +144,6 @@ const Question = () => {
             ))}
           </div>
 
-         
           <div className="flex gap-4 mt-4">
             <button
               onClick={handlePrev}
@@ -214,8 +196,24 @@ const Question = () => {
           </div>
         </div>
       </div>
+
+      {/* Comprehension Modal */}
+      {showComprehension && (
+        <div className="fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-50 flex justify-center items-center">
+          <div className="bg-white p-6 rounded-lg max-w-xl w-[90%]">
+            <h2 className="text-lg font-semibold mb-4">Comprehension</h2>
+            <p className="text-gray-800 whitespace-pre-wrap">{currentQuestion.comprehension}</p>
+            <button
+              onClick={() => setShowComprehension(false)}
+              className="mt-6 bg-sky-600 text-white px-4 py-2 rounded"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
+};
 
 export default Question;
