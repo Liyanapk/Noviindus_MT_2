@@ -4,6 +4,7 @@ import Navbar from "../Navbar/Navbar";
 import { Inter } from 'next/font/google';
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import AxiosInstance from "@/utiles/axiosInstance";
 
 const inter = Inter({
   subsets: ['latin'],
@@ -19,7 +20,7 @@ type Option = {
 
 type Question = {
   comprehension: string;
-  number: number;
+  question_id: number;
   question: string;
   image: string;
   options: Option[];
@@ -34,12 +35,14 @@ const Question = () => {
 
   const currentQuestion = questionlist[currentIndex];
 
-  const handleOptionSelect = (optionId: number) => {
-    setSelectedOptions(prev => ({
-      ...prev,
-      [currentIndex]: optionId,
-    }));
-  };
+const handleOptionSelect = (optionId: number) => {
+  const questionId = questionlist[currentIndex].question_id;
+  setSelectedOptions(prev => ({
+    ...prev,
+    [questionId]: optionId,
+  }));
+};
+
 
   const handlePrev = () => {
     if (currentIndex > 0) {
@@ -72,10 +75,39 @@ const Question = () => {
     fetchQuestions();
   }, []);
 
-  const handleSubmit = () => {
-    console.log("Submitted answers:", selectedOptions);
-    alert("Submitted! Check console for selected answers.");
-  };
+const handleSubmit = async () => {
+  try {
+    const token = localStorage.getItem("access_token");
+    if (!token) {
+      alert("You are not logged in.");
+      return;
+    }
+
+    const answers = questionlist.map((question) => ({
+      question_id: question.question_id,
+      selected_option_id: selectedOptions[question.question_id] ?? null,
+    }));
+
+    const formData = new FormData();
+    formData.append("answers", JSON.stringify(answers));
+
+    const res = await AxiosInstance.post('/answers/submit', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (res.data.success === true) {
+      alert("Answers submitted successfully");
+      console.log("Response:", res.data);
+    } else {
+      console.log("Failed to submit answers", res.data);
+    }
+  } catch (error) {
+    console.log("Something went wrong", error);
+  }
+};
+
 
   if (loading) {
     return (
@@ -88,7 +120,7 @@ const Question = () => {
   if (!currentQuestion) return null;
 
 
-  
+
 
   return (
     <div className="min-h-screen bg-slate-200">
@@ -101,7 +133,7 @@ const Question = () => {
           {currentQuestion.comprehension && (
             <button
               onClick={() => setShowComprehension(true)}
-              className={`${inter.className} w-[60%] h-[40px] bg-sky-600 rounded-xl text-white flex items-center justify-center p-4 font-medium text-xs leading-[100%] tracking-[0%]`}
+              className={`${inter.className} w-[35%] h-[40px] bg-sky-600 rounded-xl text-white flex items-center justify-center p-4 font-medium text-xs leading-[100%] tracking-[0%]`}
             >
               <span className="md:hidden">Read</span>
               <span className="hidden md:inline-flex items-center gap-x-1">
@@ -112,7 +144,7 @@ const Question = () => {
           )}
 
           <h2 className={`${inter.className} font-medium text-lg`}>
-            {currentQuestion.number}. {currentQuestion.question}
+            {currentQuestion.question_id}. {currentQuestion.question}
           </h2>
 
           {currentQuestion.image && currentQuestion.image.trim() !== "" && (
@@ -136,7 +168,7 @@ const Question = () => {
                   type="radio"
                   name={`option-${currentIndex}`} 
                   value={opt.id}
-                  checked={selectedOptions[currentIndex] === opt.id}
+                  checked={selectedOptions[currentQuestion.question_id] === opt.id}
                   onChange={() => handleOptionSelect(opt.id)}
                   className="cursor-pointer accent-sky-600"
                 />
@@ -144,12 +176,12 @@ const Question = () => {
             ))}
           </div>
 
-          <div className="flex gap-4 mt-4">
+          <div className="flex gap-4 mt-4 items-center justify-center">
             <button
               onClick={handlePrev}
               disabled={currentIndex === 0}
-              className={`w-[30%] py-2 rounded-md ${
-                currentIndex === 0 ? "bg-gray-300 cursor-not-allowed" : "bg-sky-600 text-white"
+              className={`w-[40%] py-2 rounded-md ${
+                currentIndex === 0 ? "bg-gray-300 cursor-not-allowed" : "bg-gray-300 text-black"
               }`}
             >
               Previous
@@ -165,7 +197,7 @@ const Question = () => {
             ) : (
               <button
                 onClick={handleNext}
-                className="w-[30%] py-2 rounded-md bg-sky-600 text-white"
+                className="w-[40%] py-2 rounded-md bg-sky-800 text-white"
               >
                 Next
               </button>
