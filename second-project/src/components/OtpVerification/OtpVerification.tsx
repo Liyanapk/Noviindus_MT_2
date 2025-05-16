@@ -55,6 +55,10 @@ const OtpVerification = () => {
       alert("OTP verified successfully!");
       
        router.push("/detailesAdd");
+       console.log("Response data:", res.data);
+       localStorage.setItem("access_token", res.data.access_token);
+
+
     } else {
       alert(res.data.message || "Verification failed!");
     }
