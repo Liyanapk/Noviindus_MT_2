@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import AxiosInstance from "@/utiles/axiosInstance";
 import { useRouter } from "next/navigation";
+import MarkObtained from "../MarkObtained/MarkObtained";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -43,6 +44,7 @@ const Question = () => {
   const currentQuestion = questionlist[currentIndex];
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
+  const [result, setResult] = useState('')
 
   const handleOptionSelect = (optionId: number) => {
     const questionId = questionlist[currentIndex].question_id;
@@ -145,6 +147,19 @@ const Question = () => {
       if (res.data.success === true) {
         alert("Answers submitted successfully");
         console.log("Response:", res.data);
+
+        const result = res.data;
+         const queryParams = new URLSearchParams({
+  correct: result.correct.toString(),
+  wrong: result.wrong.toString(),
+  not_attended: result.not_attended.toString(),
+  score: result.score.toString(),
+  exam_history_id: result.exam_history_id.toString(),
+}).toString();
+
+router.push(`/obtainedMark?${queryParams}`);
+
+
       } else {
         console.log("Failed to submit answers", res.data);
       }
@@ -486,7 +501,10 @@ const Question = () => {
               >
                 Submit Test
               </button>
+
+              
             </div>
+            
           </div>
         </div>
       )}
