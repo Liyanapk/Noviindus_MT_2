@@ -1,8 +1,8 @@
 "use client";
+
 import { useState } from "react";
 import Image from "next/image";
-import { Poppins } from "next/font/google";
-import { Inter } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import AxiosInstance from "@/utiles/axiosInstance";
 import { useRouter } from "next/navigation";
 
@@ -20,10 +20,22 @@ const PhoneLogin = () => {
   const router = useRouter();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [countryCode, setCountryCode] = useState("+91");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const validatePhoneNumber = (num: string) => {
+    const phoneRegex = /^[0-9]{10}$/;
+    return phoneRegex.test(num);
+  };
 
   const handleSubmit = async () => {
+    setError("");
     if (!phoneNumber) {
-      alert("Phone number is required");
+      setError("Phone number is required");
+      return;
+    }
+    if (!validatePhoneNumber(phoneNumber)) {
+      setError("Please enter a valid 10-digit phone number");
       return;
     }
 
@@ -31,18 +43,23 @@ const PhoneLogin = () => {
     formData.append("mobile", `${countryCode}${phoneNumber}`);
 
     try {
+      setLoading(true);
       const res = await AxiosInstance.post("/auth/send-otp", formData);
 
       if (res.data.success === true) {
         localStorage.setItem("mobile", `${countryCode}${phoneNumber}`);
-        alert("Logged in successfully!");
+        alert("OTP sent successfully!");
         router.push("/verifyOtp");
+      } else if (res.data.message) {
+        setError(res.data.message);
       } else {
-        alert("Error in logging in");
+        setError("Error in sending OTP. Please try again.");
       }
     } catch (err) {
-      alert("Request failed!");
+      setError("Network or server error. Please try again later.");
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,13 +69,32 @@ const PhoneLogin = () => {
         {/* Left Section */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left space-y-14 w-full md:w-1/2 mt-12 md:-mt-10 pl-0 md:pl-6">
           <div className="flex items-center space-x-3">
-            <Image src="/image/logo.png" alt="logo image" width={88} height={83} />
+            <Image
+              src="/image/logo.png"
+              alt="logo image"
+              width={88}
+              height={83}
+            />
             <div>
-              <h1 className={`${poppins.className} text-xl font-bold text-white`}>NexLearn</h1>
-              <h2 className={`${poppins.className} text-xs text-white font-semibold`}>Futuristic learning</h2>
+              <h1
+                className={`${poppins.className} text-xl font-bold text-white`}
+              >
+                NexLearn
+              </h1>
+              <h2
+                className={`${poppins.className} text-xs text-white font-semibold`}
+              >
+                Futuristic learning
+              </h2>
             </div>
           </div>
-          <Image src="/image/side_image.png" alt="side image" width={335} height={260} className="object-contain" />
+          <Image
+            src="/image/side_image.png"
+            alt="side image"
+            width={335}
+            height={260}
+            className="object-contain"
+          />
         </div>
 
         {/* Right Section */}
@@ -69,7 +105,9 @@ const PhoneLogin = () => {
               We use your mobile number to identify your account
             </p>
             <div className="relative w-full mt-4">
-              <label className="absolute -top-2 left-3 bg-white text-xs text-gray-500 px-1">Phone Number</label>
+              <label className="absolute -top-2 left-3 bg-white text-xs text-gray-500 px-1">
+                Phone Number
+              </label>
               <div className="flex items-center border border-gray-300 rounded-lg p-2 focus-within:ring-1 focus-within:ring-black">
                 <select
                   value={countryCode}
@@ -84,18 +122,23 @@ const PhoneLogin = () => {
                   className="w-full outline-none pl-2"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
+                  maxLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                 />
               </div>
+              {error && <p className="text-red-600 text-sm mt-1">{error}</p>}
               <p className={`${inter.className} text-xs text-gray-600 mt-6`}>
                 By tapping Get started, you agree to the Terms & Conditions
               </p>
             </div>
           </div>
           <button
-            className={`${inter.className} mt-6 w-full px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold`}
+            disabled={loading}
+            className={`${inter.className} mt-6 w-full px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed`}
             onClick={handleSubmit}
           >
-            Get Started
+            {loading ? "Please wait..." : "Get Started"}
           </button>
         </div>
       </div>

@@ -17,9 +17,11 @@ const inter = Inter({
 });
 
 const OtpVerification = () => {
-    const router = useRouter();
+  const router = useRouter();
   const [otpVerify, setOtpVerify] = useState("");
   const [mobile, setMobile] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedMobile = localStorage.getItem("mobile");
@@ -27,48 +29,48 @@ const OtpVerification = () => {
   }, []);
 
   const handleSubmit = async () => {
-  if (!otpVerify) {
-    alert("OTP required!");
-    return;
-  }
+    setError(null); 
 
-  const mobile = localStorage.getItem("mobile");
-  if (!mobile) {
-    alert("Mobile number missing, please login again.");
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append("otp", otpVerify);
-  formData.append("mobile", mobile);
-
- try {
-  const res = await AxiosInstance.post("/auth/verify-otp", formData);
-  console.log("Uploaded:", res.data);
-
-  if (res.data.success === true) {
-  
-    localStorage.setItem("access_token", res.data.access_token);
-
-    alert("OTP verified successfully!");
-
-    if (res.data.login === true) {
-      
-      router.push("/instructionPage"); 
-    } else {
-   
-      router.push("/detailesAdd");
+    if (!otpVerify) {
+      setError("OTP is required!");
+      return;
     }
-  } else {
-    alert(res.data.message || "Verification failed!");
-  }
-} catch (err: any) {
-  console.error("Error uploading:", err);
-  alert(err.response?.data?.message || "Verification failed!");
-}
 
-};
+    if (!mobile) {
+      setError("Mobile number missing, please login again.");
+      return;
+    }
 
+    const formData = new FormData();
+    formData.append("otp", otpVerify);
+    formData.append("mobile", mobile);
+
+    try {
+      setLoading(true);
+      const res = await AxiosInstance.post("/auth/verify-otp", formData);
+
+      if (res.data.success === true) {
+        localStorage.setItem("access_token", res.data.access_token);
+        alert("OTP verified successfully!");
+
+        if (res.data.login === true) {
+          router.push("/instructionPage");
+        } else {
+          router.push("/detailesAdd");
+        }
+      } else {
+        setError(res.data.message || "Verification failed!");
+      }
+    } catch (err: any) {
+      console.error("Error uploading:", err);
+      // Try to display backend error message or generic fallback
+      const message =
+        err.response?.data?.message || err.message || "Verification failed!";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen w-full bg-[url('/image/banner.png')] bg-cover bg-center bg-no-repeat flex items-center justify-center p-4">
@@ -120,15 +122,31 @@ const OtpVerification = () => {
                 SMS code
               </label>
 
-              <div className="flex items-center border border-gray-300 rounded-lg p-2 focus-within:ring-1 focus-within:ring-black">
+              <div
+                className={`flex items-center border rounded-lg p-2 focus-within:ring-1 ${
+                  error
+                    ? "border-red-500 focus-within:ring-red-500"
+                    : "border-gray-300 focus-within:ring-black"
+                }`}
+              >
                 <input
                   type="text"
                   placeholder="123 456"
                   className="w-full outline-none pl-2"
                   value={otpVerify}
                   onChange={(e) => setOtpVerify(e.target.value)}
+                  disabled={loading}
                 />
               </div>
+
+              {error && (
+                <p
+                  className="text-red-600 text-xs mt-2 font-semibold"
+                  role="alert"
+                >
+                  {error}
+                </p>
+              )}
 
               <p className={`${inter.className} text-xs text-gray-600 mt-8`}>
                 Your 6 digit code is on its way. This can sometimes take a few
@@ -137,10 +155,11 @@ const OtpVerification = () => {
             </div>
           </div>
           <button
-            className={`${inter.className} mt-6 w-full px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold`}
+            className={`${inter.className} mt-6 w-full px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold disabled:opacity-50 disabled:cursor-not-allowed`}
             onClick={handleSubmit}
+            disabled={loading}
           >
-            Get Started
+            {loading ? "Verifying..." : "Get Started"}
           </button>
         </div>
       </div>

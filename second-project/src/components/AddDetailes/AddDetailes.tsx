@@ -22,37 +22,52 @@ const AddDetailes = () => {
 
   const [formData, setFormData] = useState({
     name: "",
-    mobile: "",
     email: "",
     qualification: "",
   });
 
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    qualification: "",
+    image: "",
+  });
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErrors({ ...errors, [e.target.name]: "" });
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setImageFile(e.target.files[0]);
+      setErrors({ ...errors, image: "" });
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!imageFile) {
-      alert("Please select a profile image.");
-      return;
-    }
+    const newErrors = {
+       name: formData.name.trim().length > 2 ? "" : "Name must be at least 3 characters long.",
+      email: formData.email ? "" : "Email is required.",
+      qualification: formData.qualification ? "" : "Qualification is required.",
+      image: imageFile ? "" : "Profile image is required.",
+    };
+
+    setErrors(newErrors);
+
+    const hasError = Object.values(newErrors).some((err) => err !== "");
+    if (hasError) return;
 
     const data = new FormData();
     data.append("name", formData.name);
     data.append("mobile", mobile);
     data.append("email", formData.email);
     data.append("qualification", formData.qualification);
-    data.append("profile_image", imageFile);
+    data.append("profile_image", imageFile!);
 
     try {
       const res = await AxiosInstance.post("/auth/create-profile", data, {
@@ -61,12 +76,16 @@ const AddDetailes = () => {
         },
       });
 
-      if (res.data.success === true) {
-        alert("Form submitted successfully!");
-        router.push('/instructionPage')
-      } else {
-        alert("Error in adding detailes");
-      }
+     if (res.data.success === true) {
+
+    localStorage.setItem("access_token", res.data.access_token); 
+ 
+  alert("Form submitted successfully!");
+  router.push("/instructionPage");
+} else {
+  alert("Error in adding details");
+}
+
     } catch (err) {
       console.error("Upload error:", err);
       alert("Failed to submit form.");
@@ -93,14 +112,10 @@ const AddDetailes = () => {
               height={83}
             />
             <div>
-              <h1
-                className={`${poppins.className} text-xl font-bold text-white`}
-              >
+              <h1 className={`${poppins.className} text-xl font-bold text-white`}>
                 NexLearn
               </h1>
-              <h2
-                className={`${poppins.className} text-xs text-white font-semibold`}
-              >
+              <h2 className={`${poppins.className} text-xs text-white font-semibold`}>
                 Futuristic learning
               </h2>
             </div>
@@ -119,11 +134,10 @@ const AddDetailes = () => {
           onSubmit={handleSubmit}
           className="w-full md:w-2/3 bg-white rounded-xl shadow-md p-4 min-h-[380px] flex flex-col justify-between"
         >
-          <h1
-            className={`${poppins.className} text-xl font-bold mb-1 mt-4">Add Your Deatiles`}
-          >
-            Add Your Detailes
+          <h1 className={`${poppins.className} text-xl font-bold mb-1 mt-4`}>
+            Add Your Details
           </h1>
+
           {/* Profile Image Preview */}
           <div className="flex items-center justify-center mt-5">
             <label className="relative w-36 h-36 bg-white border-2 border-slate-300 border-dashed rounded-xl overflow-hidden cursor-pointer flex items-center justify-center">
@@ -134,7 +148,6 @@ const AddDetailes = () => {
                     alt="Preview"
                     className="w-full h-full object-cover"
                   />
-
                   <button
                     type="button"
                     onClick={() => setImageFile(null)}
@@ -157,13 +170,13 @@ const AddDetailes = () => {
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center text-gray-500 text-xs space-y-3 ">
+                <div className="flex flex-col items-center text-gray-500 text-xs space-y-3">
                   <Image
                     src="/image/CameraPlus.png"
                     alt="camera image"
                     width={20}
                     height={20}
-                  ></Image>
+                  />
                   <span className="text-xs text-center space-y-2">
                     Add Your Profile Picture
                   </span>
@@ -178,33 +191,48 @@ const AddDetailes = () => {
               />
             </label>
           </div>
+          {errors.image && (
+            <p className="text-red-500 text-xs mt-1 text-center">{errors.image}</p>
+          )}
 
+          {/* Name */}
           <input
             name="name"
             type="text"
             placeholder="Full Name"
             className="w-full border border-gray-300 p-2 rounded-lg mt-4"
             onChange={handleChange}
-            required
+            value={formData.name}
           />
+          {errors.name && (
+            <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+          )}
 
+          {/* Email */}
           <input
             name="email"
             type="email"
             placeholder="Email"
             className="w-full border border-gray-300 p-2 rounded-lg mt-4"
             onChange={handleChange}
-            required
+            value={formData.email}
           />
+          {errors.email && (
+            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+          )}
 
+          {/* Qualification */}
           <input
             name="qualification"
             type="text"
             placeholder="Qualification"
             className="w-full border border-gray-300 p-2 rounded-lg mt-4"
             onChange={handleChange}
-            required
+            value={formData.qualification}
           />
+          {errors.qualification && (
+            <p className="text-red-500 text-xs mt-1">{errors.qualification}</p>
+          )}
 
           <button
             className={`${inter.className} mt-6 w-full px-6 py-2 bg-slate-800 text-white rounded-lg hover:bg-slate-700 font-semibold`}
