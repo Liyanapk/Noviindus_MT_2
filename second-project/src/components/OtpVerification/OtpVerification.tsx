@@ -42,30 +42,31 @@ const OtpVerification = () => {
   formData.append("otp", otpVerify);
   formData.append("mobile", mobile);
 
-  try {
-    const res = await AxiosInstance.post("/auth/verify-otp", formData);
-    console.log("Uploaded:", res.data);
- if (res.data.success === true) {
-    
-      localStorage.setItem("access_token", res.data.access_token);
-      // localStorage.setItem("refresh_token", res.data.refresh_token);
-      // localStorage.setItem("token_type", res.data.token_type);
-      // localStorage.setItem("isLoggedIn", "true");
+ try {
+  const res = await AxiosInstance.post("/auth/verify-otp", formData);
+  console.log("Uploaded:", res.data);
 
-      alert("OTP verified successfully!");
+  if (res.data.success === true) {
+  
+    localStorage.setItem("access_token", res.data.access_token);
+
+    alert("OTP verified successfully!");
+
+    if (res.data.login === true) {
       
-       router.push("/detailesAdd");
-       console.log("Response data:", res.data);
-       localStorage.setItem("access_token", res.data.access_token);
-
-
+      router.push("/instructionPage"); 
     } else {
-      alert(res.data.message || "Verification failed!");
+   
+      router.push("/detailesAdd");
     }
-  } catch (err: any) {
-    console.error("Error uploading:", err);
-    alert(err.response?.data?.message || "Verification failed!");
+  } else {
+    alert(res.data.message || "Verification failed!");
   }
+} catch (err: any) {
+  console.error("Error uploading:", err);
+  alert(err.response?.data?.message || "Verification failed!");
+}
+
 };
 
 
