@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Poppins } from "next/font/google";
@@ -51,7 +52,10 @@ const AddDetailes = () => {
     e.preventDefault();
 
     const newErrors = {
-       name: formData.name.trim().length > 2 ? "" : "Name must be at least 3 characters long.",
+      name:
+        formData.name.trim().length > 2
+          ? ""
+          : "Name must be at least 3 characters long.",
       email: formData.email ? "" : "Email is required.",
       qualification: formData.qualification ? "" : "Qualification is required.",
       image: imageFile ? "" : "Profile image is required.",
@@ -76,16 +80,14 @@ const AddDetailes = () => {
         },
       });
 
-     if (res.data.success === true) {
+      if (res.data.success === true) {
+        localStorage.setItem("access_token", res.data.access_token);
 
-    localStorage.setItem("access_token", res.data.access_token); 
- 
-  alert("Form submitted successfully!");
-  router.push("/instructionPage");
-} else {
-  alert("Error in adding details");
-}
-
+        alert("Form submitted successfully!");
+        router.push("/instructionPage");
+      } else {
+        alert("Error in adding details");
+      }
     } catch (err) {
       console.error("Upload error:", err);
       alert("Failed to submit form.");
@@ -112,10 +114,14 @@ const AddDetailes = () => {
               height={83}
             />
             <div>
-              <h1 className={`${poppins.className} text-xl font-bold text-white`}>
+              <h1
+                className={`${poppins.className} text-xl font-bold text-white`}
+              >
                 NexLearn
               </h1>
-              <h2 className={`${poppins.className} text-xs text-white font-semibold`}>
+              <h2
+                className={`${poppins.className} text-xs text-white font-semibold`}
+              >
                 Futuristic learning
               </h2>
             </div>
@@ -138,7 +144,6 @@ const AddDetailes = () => {
             Add Your Details
           </h1>
 
-          {/* Profile Image Preview */}
           <div className="flex items-center justify-center mt-5">
             <label className="relative w-36 h-36 bg-white border-2 border-slate-300 border-dashed rounded-xl overflow-hidden cursor-pointer flex items-center justify-center">
               {imageFile ? (
@@ -192,10 +197,11 @@ const AddDetailes = () => {
             </label>
           </div>
           {errors.image && (
-            <p className="text-red-500 text-xs mt-1 text-center">{errors.image}</p>
+            <p className="text-red-500 text-xs mt-1 text-center">
+              {errors.image}
+            </p>
           )}
 
-          {/* Name */}
           <input
             name="name"
             type="text"
@@ -208,7 +214,6 @@ const AddDetailes = () => {
             <p className="text-red-500 text-xs mt-1">{errors.name}</p>
           )}
 
-          {/* Email */}
           <input
             name="email"
             type="email"
@@ -221,7 +226,6 @@ const AddDetailes = () => {
             <p className="text-red-500 text-xs mt-1">{errors.email}</p>
           )}
 
-          {/* Qualification */}
           <input
             name="qualification"
             type="text"

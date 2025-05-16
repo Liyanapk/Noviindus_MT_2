@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import Navbar from '../Navbar/Navbar';
-import { Inter } from 'next/font/google';
-import Image from 'next/image';
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import Navbar from "../Navbar/Navbar";
+import { Inter } from "next/font/google";
+import Image from "next/image";
 
 interface ResultType {
   correct: number;
@@ -15,8 +15,8 @@ interface ResultType {
 }
 
 const inter = Inter({
-  subsets: ['latin'],
-  weight: ['500', '400'],
+  subsets: ["latin"],
+  weight: ["500", "400"],
 });
 
 const MarkObtained = () => {
@@ -26,13 +26,13 @@ const MarkObtained = () => {
   const [result, setResult] = useState<ResultType | null>(null);
 
   useEffect(() => {
-    if (!searchParams) return; // wait until searchParams available
+    if (!searchParams) return;
 
-    const correctParam = searchParams.get('correct');
-    const wrongParam = searchParams.get('wrong');
-    const notAttendedParam = searchParams.get('not_attended');
-    const scoreParam = searchParams.get('score');
-    const examHistoryIdParam = searchParams.get('exam_history_id');
+    const correctParam = searchParams.get("correct");
+    const wrongParam = searchParams.get("wrong");
+    const notAttendedParam = searchParams.get("not_attended");
+    const scoreParam = searchParams.get("score");
+    const examHistoryIdParam = searchParams.get("exam_history_id");
 
     if (
       correctParam !== null &&
@@ -66,7 +66,7 @@ const MarkObtained = () => {
             className=" p-6 rounded-md text-white"
             style={{
               background:
-                'linear-gradient(307.95deg, #1C3141 2.54%, #177A9C 79.7%)',
+                "linear-gradient(307.95deg, #1C3141 2.54%, #177A9C 79.7%)",
             }}
           >
             <div className="flex flex-col justify-center items-center gap-1">
@@ -135,7 +135,7 @@ const MarkObtained = () => {
         <div className="w-full max-w-md">
           <button
             className="bg-gray-800 w-full py-2 text-white font-medium text-sm rounded-md mt-4"
-            onClick={() => router.push('/instructionPage')} 
+            onClick={() => router.push("/instructionPage")}
           >
             Done
           </button>

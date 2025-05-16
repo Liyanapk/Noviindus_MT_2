@@ -44,7 +44,7 @@ const Question = () => {
   const currentQuestion = questionlist[currentIndex];
   const [unansweredQuestions, setUnansweredQuestions] = useState<number[]>([]);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
-  const [result, setResult] = useState('')
+  const [result, setResult] = useState("");
 
   const handleOptionSelect = (optionId: number) => {
     const questionId = questionlist[currentIndex].question_id;
@@ -149,17 +149,15 @@ const Question = () => {
         console.log("Response:", res.data);
 
         const result = res.data;
-         const queryParams = new URLSearchParams({
-  correct: result.correct.toString(),
-  wrong: result.wrong.toString(),
-  not_attended: result.not_attended.toString(),
-  score: result.score.toString(),
-  exam_history_id: result.exam_history_id.toString(),
-}).toString();
+        const queryParams = new URLSearchParams({
+          correct: result.correct.toString(),
+          wrong: result.wrong.toString(),
+          not_attended: result.not_attended.toString(),
+          score: result.score.toString(),
+          exam_history_id: result.exam_history_id.toString(),
+        }).toString();
 
-router.push(`/obtainedMark?${queryParams}`);
-
-
+        router.push(`/obtainedMark?${queryParams}`);
       } else {
         console.log("Failed to submit answers", res.data);
       }
@@ -386,16 +384,18 @@ router.push(`/obtainedMark?${queryParams}`);
             >
               Comprehensive Paragraph
             </h2>
-            <p className={`${inter.className} text-sm font-lighttext-gray-800 whitespace-pre-wrap text-gray-600`}>
+            <p
+              className={`${inter.className} text-sm font-lighttext-gray-800 whitespace-pre-wrap text-gray-600`}
+            >
               {currentQuestion.comprehension}
             </p>
             <div className="flex justify-end">
-            <button
-              onClick={() => setShowComprehension(false)}
-              className={`${inter.className} text-sm font-light mt-8 bg-gray-800 text-white px-28 py-2 rounded-md flex justify-end`}
-            >
-              Minimize
-            </button>
+              <button
+                onClick={() => setShowComprehension(false)}
+                className={`${inter.className} text-sm font-light mt-8 bg-gray-800 text-white px-28 py-2 rounded-md flex justify-end`}
+              >
+                Minimize
+              </button>
             </div>
           </div>
         </div>
@@ -501,10 +501,7 @@ router.push(`/obtainedMark?${queryParams}`);
               >
                 Submit Test
               </button>
-
-              
             </div>
-            
           </div>
         </div>
       )}

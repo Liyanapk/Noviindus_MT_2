@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import { Inter } from "next/font/google";
 import Instructionapi from "@/utiles/instructionapi";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -39,7 +39,7 @@ const Instruction = () => {
   }, []);
 
   const instructionList = Instructions
-    ? Instructions.replace(/<\/?ol>/g, "") 
+    ? Instructions.replace(/<\/?ol>/g, "")
         .split("</li>")
         .map((item) => item.replace(/<li>/, "").trim())
         .filter(Boolean)
@@ -94,12 +94,12 @@ const Instruction = () => {
           </div>
         </div>
 
-          <button
-      className={`${inter.className} mt-6 mb-4 w-full max-w-[300px] px-6 py-4 bg-sky-950 text-white rounded-lg hover:bg-slate-700 font-semibold text-base sm:text-sm`}
-      onClick={() => router.push('/questionPage')}
-    >
-      Start Test
-    </button>
+        <button
+          className={`${inter.className} mt-6 mb-4 w-full max-w-[300px] px-6 py-4 bg-sky-950 text-white rounded-lg hover:bg-slate-700 font-semibold text-base sm:text-sm`}
+          onClick={() => router.push("/questionPage")}
+        >
+          Start Test
+        </button>
       </div>
     </div>
   );

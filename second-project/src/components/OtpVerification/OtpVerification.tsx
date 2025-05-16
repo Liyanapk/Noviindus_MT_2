@@ -29,7 +29,7 @@ const OtpVerification = () => {
   }, []);
 
   const handleSubmit = async () => {
-    setError(null); 
+    setError(null);
 
     if (!otpVerify) {
       setError("OTP is required!");
@@ -63,7 +63,7 @@ const OtpVerification = () => {
       }
     } catch (err: any) {
       console.error("Error uploading:", err);
-      // Try to display backend error message or generic fallback
+
       const message =
         err.response?.data?.message || err.message || "Verification failed!";
       setError(message);

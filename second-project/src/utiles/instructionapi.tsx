@@ -1,8 +1,8 @@
-import AxiosInstance from "./axiosInstance"
+import AxiosInstance from "./axiosInstance";
 
 const Instructionapi = async () => {
   const token = localStorage.getItem("access_token");
-  const res = await AxiosInstance.get('/question/list', {
+  const res = await AxiosInstance.get("/question/list", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -10,8 +10,4 @@ const Instructionapi = async () => {
   return res.data;
 };
 
-export default Instructionapi
-
-
-
- 
+export default Instructionapi;
